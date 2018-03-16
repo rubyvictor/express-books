@@ -1,3 +1,6 @@
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").load();
+}
 var express = require("express");
 var path = require("path");
 var favicon = require("serve-favicon");
@@ -10,14 +13,26 @@ var books = require("./routes/books");
 var mongoose = require("mongoose");
 var Book = require('./models/Book');
 
+const isProduction = process.env.NODE_ENV === "production";
+
 var app = express();
 
-mongoose.connect('mongodb://localhost/books_db',async function(err){
+const dbUrl = process.env.MONGODB_URI;
+mongoose.connect(dbUrl,{}).then(async () => {
+  console.log("Connected to mongo database at " + dbUrl);
+});
+
+
+mongoose.connect(dbUrl,async function(err){
   if(err)
   throw err;
   console.log("successfully connected to books_db");
 
 });
+
+if (!isProduction){
+  mongoose.set("debug",true);
+}
 
 
 // view engine setup
